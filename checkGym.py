@@ -44,4 +44,4 @@ if __name__ == "__main__":
     finally:
         cam.release()
         cv2.destroyAllWindows()
-#ㅎㅎ222s
+#
