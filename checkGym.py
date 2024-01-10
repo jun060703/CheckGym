@@ -1,11 +1,20 @@
 import cv2
 import time
-from flask import Flask, render_template, Response,url_for
+import face_recognition
+import numpy as np
+from flask import Flask, render_template, Response
+from fileinput import close
+
 
 app = Flask(__name__)
 face_cascade = cv2.CascadeClassifier('C:/Users/Samsung/Desktop/CheckGym/ddd.xml')
 
+img_check = face_recognition.load_image_file('C:/Users/Samsung/Desktop/CheckGym/static/img/20240101_230333.jpg')
+img_check = cv2.cvtColor(img_check, cv2.COLOR_BGR2RGB)
+encodeElon = face_recognition.face_encodings(img_check)[0]
+
 cam = cv2.VideoCapture(0)
+capNum = 0
 
 def generate_frames():
     while True:
@@ -13,21 +22,35 @@ def generate_frames():
         if not ret:
             break
 
-        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray_frame)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        for (x, y, w, h) in faces:
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        
+        face_locations = face_recognition.face_locations(frame)
 
-        ret, buffer = cv2.imencode('.jpg', frame)
-        if not ret:
-            break
+        if face_locations:
+        
+            faceLocTest = face_locations[0]
 
-        frame = buffer.tobytes()
+        
+            cv2.rectangle(frame, (faceLocTest[3], faceLocTest[0]), (faceLocTest[1], faceLocTest[2]), (255, 0, 255), 2)
 
+        
+            encodeTest = face_recognition.face_encodings(frame)[0]
+
+            if encodeElon is not None:
+                results = face_recognition.compare_faces([encodeElon], encodeTest)
+                faceDis = face_recognition.face_distance([encodeElon], encodeTest)
+
+                cv2.putText(frame, f'{results} {round(faceDis[0], 2)}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        data = jpeg.tobytes()
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
+               b'Content-Type: image/jpeg\r\n\r\n' + data + b'\r\n\r\n')
+        
+        if cv2.waitKey(1) == ord('c'): # c를 누르면 화면 캡쳐 후 파일경로에 저장
+            cam = cv2.imwrite('C:/Users/Samsung/Desktop/CheckGym/static/img' % capNum, frame)
+        capNum += 1
         time.sleep(0)
 
 @app.route('/')
@@ -40,7 +63,8 @@ def video_feed():
 
 if __name__ == "__main__":
     try:
-        app.run(host='0.0.0.0', port=5050)
+        app.run(host='0.0.0.0', port=5050, debug=True)
     finally:
-        cam.release()
+        if cam.isOpened():
+            cam.release()
         cv2.destroyAllWindows()
