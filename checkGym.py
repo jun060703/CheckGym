@@ -1,9 +1,9 @@
 import cv2
 import time
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response,url_for
 
 app = Flask(__name__)
-face_cascade = cv2.CascadeClassifier('C:/python2/dkdk/ddd.xml')
+face_cascade = cv2.CascadeClassifier('C:/Users/Samsung/Desktop/CheckGym/ddd.xml')
 
 cam = cv2.VideoCapture(0)
 
@@ -44,4 +44,3 @@ if __name__ == "__main__":
     finally:
         cam.release()
         cv2.destroyAllWindows()
-#
