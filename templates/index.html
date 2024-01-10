@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Detection</title>
 </head>
+<link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
 <body>
+    <div class="qe">
     <img src="{{ url_for('video_feed') }}" width="550px" height="550px">
+    <button class="send">회원가입</button>
+    </div>
 </body>
 </html>
