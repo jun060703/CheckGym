@@ -10,7 +10,7 @@ app = Flask(__name__)
 predictor_file = 'C:/Users/Samsung/Desktop/CheckGym/shape_predictor_68_face_landmarks (1).dat'
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_file) 
-# Firebase 인증 및 버킷 초기화
+
 cred = credentials.Certificate({
     "type": "service_account",
     "project_id": "checkgym-322d2",
@@ -29,12 +29,6 @@ firebase_admin.initialize_app(cred, {'storageBucket': 'checkgym-322d2.appspot.co
 bucket = storage.bucket()
 
 class FaceRecognition:
-    # 클래스 멤버로 detector와 cap을 정의
-    detector = dlib.get_frontal_face_detector()
-    cap = cv2.VideoCapture(0)
-
-class FaceRecognition:
-    # 클래스 멤버로 detector와 cap을 정의
     detector = dlib.get_frontal_face_detector()
     cap = cv2.VideoCapture(0)
 
@@ -43,13 +37,8 @@ class FaceRecognition:
         self.local_paths = []
 
     def download_image(self, remote_image_path, local_image_path):
-        try:
             blob = bucket.blob(remote_image_path)
             blob.download_to_filename(local_image_path)
-            print(f"Image downloaded successfully: {local_image_path}")
-        except Exception as e:
-            print(f"Error downloading image: {str(e)}")
-
     def load_compare_image(self, local_image_path):
         global compare_image
         compare_image = cv2.imread(local_image_path)
@@ -71,9 +60,6 @@ class FaceRecognition:
 
             if compare_image is not None:
                 compare_image_resized = cv2.resize(compare_image, (frame.shape[1], frame.shape[0]))
-            else:
-                print("Error: Compare image is None.")
-                break
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             rects = self.detector(gray, 1)
