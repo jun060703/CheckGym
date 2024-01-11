@@ -127,15 +127,19 @@ section {
     text-align: center;
 }
 
+/* admin_log */
 
-
-
-
-
-.webCam{
-    margin: 0 auto;
+.table {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    top: 50px;
 }
-.send{
-    width: 100px;
-    
+.table table {
+    border-collapse: collapse;
+}
+.table table td {
+    border: 1px solid #ccc;
+    width: 200px;
+    text-align: center;
 }

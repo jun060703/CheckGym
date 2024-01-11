@@ -15,13 +15,16 @@
         <p>짐체크 회원가입하기</p>
         <form method="post" action="{{ url_for('signin') }}">
             <div class="input">
-                <input type="email" placeholder="이메일" id="email" name="email"> <br>
-                <input type="password" placeholder="비밀번호" id="pw" name="pw">
+                <input type="email" placeholder="이메일" id="email" name="email" required> <br>
+                <input type="password" placeholder="비밀번호" id="pw" name="pw" required> <br>
+                <input type="text" placeholder="학번 ex &#41; 20401" id="studentId" name="studentId" required> <br>
+                <input type="text" placeholder="이름 (실명)" id="name" name="name" required>
             </div>
             <input type="submit" value="회원가입" id="signInBtn">
         </form>
     </section>
     
+    <script src="../static/js/script.js"></script>
 
 </body>
 </html>
