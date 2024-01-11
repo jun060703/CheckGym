@@ -1,8 +1,7 @@
 import cv2
 import firebase_admin
 from firebase_admin import credentials, storage
-from flask import Flask, render_template, Response
-
+from flask import Flask, render_template, Respons
 from checkGym import generate_frames
 cred = credentials.Certificate({
   "type": "service_account",
@@ -41,8 +40,8 @@ while True:
         break
     
 @app.route('/')
-def login():
-    return render_template('login.html')
+def face():
+    return render_template('facepost.html')
 
 @app.route('/video_feed')
 def video_feed():
