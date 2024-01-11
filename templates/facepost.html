@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인</title>
+    <title>얼굴등록</title>
     <link rel="stylesheet" href="../static/css/login.css">
+    
 </head>
 <body>
     <header>
         <a href="#"><img src="../static/imges/Logo.png" alt=""></a>
     </header>
     <section>
-        <p>짐체크 로그인하기</p>
+        <p>짐체크 얼굴등록하기</p>
         <div class="webCamDiv">
             <img src="{{ url_for('video_feed') }}" class="webCam">
         </div>
+        <input type="button" value="캡처" class="captureBtn">
     </section>
 
     
+    <script src="../static/js/script.js"></script>
 </body>
 </html>
