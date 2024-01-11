@@ -19,7 +19,7 @@
         <div class="hMenu">
             <div class="leftmenu">
                 <div class="hLogo">
-                    <a href="#"><img src="../static/imges/Logo.png" alt="logo"></a>
+                    <a href="/main_login"><img src="../static/imges/Logo.png" alt="logo"></a>
                 </div>
                 <div class="menu">
                     <a href="#">출석하기</a>
@@ -27,9 +27,9 @@
                 </div>
             </div>
             <div class="authMenu">
-                <p class="wideText">문찬영(20404)님 환영합니다</p>
-                <a href="./main_logout.html">LogOut</a>
-                <a href="./signin.html">Sign In</a>
+                <p class="wideText">{{ user_info['name'] }}({{ user_info['studentId'] }})님 환영합니다</p>
+                <a href="/main_logout">LogOut</a>
+                <a href="/signin">Sign In</a>
             </div>
         </div>
     </header>

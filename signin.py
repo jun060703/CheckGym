@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, Response, redirect, url_for, session
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db, credentials, storage
 import numpy as np
 import dlib
 import cv2
+from flask import jsonify
 app = Flask(__name__)
+from datetime import datetime
+from checkGym import generate_frames
+
 
 # Firebase 관련 설정
 cred = credentials.Certificate({
@@ -30,17 +34,65 @@ def signin():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['pw']
+        studentId = request.form['studentId']
+        name = request.form['name']
+        
         
         # Firebase Realtime Database에 사용자 정보 추가
-        user_data = {'email': email, 'pw': password}
+        user_data = {'email': email, 'pw': password, 'studentId': studentId, 'name': name}
         ref.push(user_data)
         
         return redirect('/facepost')
     return render_template('signin.html')
 
+
+# 사용자 정보 가져오기
+
 @app.route('/facepost', methods=['GET', 'POST'])
-def login():
+def facepost():
     return render_template('facepost.html')
+
+@app.route('/admin_log', methods=['GET', 'POST'])
+def get_user():
+    users_data = ref.get()
+    
+    return render_template('admin_log.html', users_data=users_data)
+
+@app.route('/admin_users', methods=['GET', 'POST'])
+def get_users():
+    users_data = ref.get()
+    
+    return render_template('admin_users.html', users_data=users_data)
+
+
+@app.route('/main_login', methods=['GET', 'POST'])
+def get_email():
+    # Firebase Realtime Database에서 email 가져오기
+    student_id = '20401'
+    email = ref.get()
+    studentId = ref.get()
+    sysdate = datetime.now().strftime("%Y-%m-%d %H:%M")
+    sysdate = {'sysdate': sysdate}
+    ref.push(sysdate)
+
+    # 가져온 email을 JSON 형태로 반환
+    users_data = ref.order_by_child('studentId').equal_to(student_id).get()
+    user_info = None
+    for key, value in users_data.items():
+        if 'studentId' in value and value['studentId'] == student_id:
+            user_info = {
+                'name': value['name'],
+                'studentId': value['studentId']
+            }
+            break
+   
+    return render_template('main_login.html', user_info=user_info)    
+
+
+@app.route('/main_logout', methods=['GET', 'POST'])
+def main_logout():
+    return render_template('main_logout.html')
+
 
 ALL = list(range(0, 68))  # 점을 표시
 RIGHT_EYEBROW = list(range(17, 22))
@@ -109,8 +161,27 @@ def generate_frames():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    bucket = storage.bucket()
 
+    capture = cv2.VideoCapture(0)
+
+    capNum = 0
+    while True:
+        ret, frame = capture.read()
+
+        cv2.imshow("ex01", frame)
+
+        key = cv2.waitKey(1)
+
+        if key == ord('c'):
+            firebase_path = f'captured_images/_captured_{capNum:}.png'
+            blob = bucket.blob(firebase_path)
+            capNum += 1
+
+        elif key == ord('q'):
+            break
+    capture.release()
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(debug=True)
