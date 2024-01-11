@@ -13,11 +13,13 @@
     </header>
     <section>
         <p>짐체크 회원가입하기</p>
-        <div class="input">
-            <input type="text" placeholder="이메일" id="email"> <br>
-            <input type="text" placeholder="비밀번호" id="pw">
-        </div>
-        <input type="button" value="회원가입" id="signInBtn">
+        <form method="post" action="{{ url_for('signin') }}">
+            <div class="input">
+                <input type="email" placeholder="이메일" id="email" name="email"> <br>
+                <input type="password" placeholder="비밀번호" id="pw" name="pw">
+            </div>
+            <input type="submit" value="회원가입" id="signInBtn">
+        </form>
     </section>
     
 
