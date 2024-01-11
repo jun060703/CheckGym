@@ -1,7 +1,7 @@
 import cv2
 import firebase_admin
 from firebase_admin import credentials, storage
-from flask import Flask, render_template, Respons
+from flask import Flask, render_template, Response
 from checkGym import generate_frames
 cred = credentials.Certificate({
   "type": "service_account",

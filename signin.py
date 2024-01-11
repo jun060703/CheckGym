@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, Response, redirect, url_for, session
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db, credentials, storage
 import numpy as np
 import dlib
 import cv2
 from flask import jsonify
 app = Flask(__name__)
 from datetime import datetime
+from checkGym import generate_frames
+
 
 # Firebase 관련 설정
 cred = credentials.Certificate({
@@ -159,8 +161,27 @@ def generate_frames():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    bucket = storage.bucket()
 
+    capture = cv2.VideoCapture(0)
+
+    capNum = 0
+    while True:
+        ret, frame = capture.read()
+
+        cv2.imshow("ex01", frame)
+
+        key = cv2.waitKey(1)
+
+        if key == ord('c'):
+            firebase_path = f'captured_images/_captured_{capNum:}.png'
+            blob = bucket.blob(firebase_path)
+            capNum += 1
+
+        elif key == ord('q'):
+            break
+    capture.release()
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(debug=True)
