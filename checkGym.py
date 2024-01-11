@@ -1,73 +1,81 @@
-import cv2
-import time
-import face_recognition
 from flask import Flask, render_template, Response
-from pathlib import Path
+import cv2
+import numpy as np
+import dlib
 
 app = Flask(__name__)
 
-# Load the reference image for face recognition
-imgElon = face_recognition.load_image_file('C:/Users/Samsung/Desktop/CheckGym/static/img/20240101_230333.jpg')
-imgElon = cv2.cvtColor(imgElon, cv2.COLOR_BGR2RGB)
-encodeElon = face_recognition.face_encodings(imgElon)
+ALL = list(range(0, 68))  # 점을 표시
+RIGHT_EYEBROW = list(range(17, 22))
+LEFT_EYEBROW = list(range(22, 27))
+RIGHT_EYE = list(range(36, 42))
+LEFT_EYE = list(range(42, 48))
+NOSE = list(range(27, 36))
+MOUTH_OUTLINE = list(range(48, 61))
+MOUTH_INNER = list(range(61, 68))
+JAWLINE = list(range(0, 17))
 
-# Try to open the camera
+index = ALL
+predictor_file = 'C:/Users/Samsung/Desktop/CheckGym/shape_predictor_68_face_landmarks (1).dat'
+detector = dlib.get_frontal_face_detector()
+predictor = dlib.shape_predictor(predictor_file)
+
 cap = cv2.VideoCapture(0)
-if not cap.isOpened():
-    print("Error: Camera not opened. Check camera index or connection.")
-    exit()
 
-capNum = 0 
+image_file = 'C:/Users/Samsung/Desktop/CheckGym/static/img/20240101_230333.jpg'
+compare_image = cv2.imread(image_file)
 
 def generate_frames():
-    global capNum  # Use the global variable
-
     while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Error: Couldn't read frame from the camera.")
+        success, frame = cap.read()
+        if not success:
             break
 
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        max_size = 700
+        if max(frame.shape) > max_size:
+            scale_factor = max_size / max(frame.shape)
+            frame = cv2.resize(frame, None, fx=scale_factor, fy=scale_factor)
 
-        face_locations = face_recognition.face_locations(frame)
+        compare_image_resized = cv2.resize(compare_image, (frame.shape[1], frame.shape[0]))
 
-        if face_locations:
-            faceLocTest = face_locations[0]
-            cv2.rectangle(frame, (faceLocTest[3], faceLocTest[0]), (faceLocTest[1], faceLocTest[2]), (255, 0, 255), 2)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        rects = detector(gray, 1)
 
-            encodeTest = face_recognition.face_encodings(frame)
-            if encodeTest:
-                encodeTest = encodeTest[0]
+        for (i, rect) in enumerate(rects):
+            points = np.matrix([[p.x, p.y] for p in predictor(gray, rect).parts()])
 
-                if encodeElon is not None:
-                    results = face_recognition.compare_faces([encodeElon], encodeTest)
-                    faceDis = face_recognition.face_distance([encodeElon], encodeTest)
+            x, y, w, h = rect.left(), rect.top(), rect.width(), rect.height()
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-                    cv2.putText(frame, f'{results} {round(float(faceDis[0][0]), 2)}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+            match_result = False
 
-        ret, jpeg = cv2.imencode('.jpg', frame)
-        data = jpeg.tobytes()
+            for (i, point) in enumerate(points):
+                x = point[0, 0]
+                y = point[0, 1]
+
+                difference = cv2.absdiff(frame, compare_image_resized)
+                mean_difference = np.mean(difference)
+
+                if mean_difference < 72:
+                    match_result = True
+
+            if match_result:
+                cv2.putText(frame, "true", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            else:
+                cv2.putText(frame, "false", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + data + b'\r\n\r\n')
-
-        # if cv2.waitKey(1) == ord('c'):
-        #     file_path = f'path/to/save/captured_{capNum}.jpg'
-        #     cv2.imwrite(file_path, frame)
-        #     capNum += 1
-        #     print(f"Captured frame saved at: {file_path}")
-
-        time.sleep(0.01)
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
 @app.route('/')
-def index():
-    return render_template("index.html")
+def login():
+    return render_template('login.html')
 
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5050, debug=True)
-    cap.release()
-    cv2.destroyAllWindows()
+    app.run(debug=True)
