@@ -1,7 +1,9 @@
 import cv2
 import firebase_admin
 from firebase_admin import credentials, storage
+from flask import Flask, render_template, Response
 
+from checkGym import generate_frames
 cred = credentials.Certificate({
   "type": "service_account",
   "project_id": "checkgym-322d2",
@@ -15,7 +17,7 @@ cred = credentials.Certificate({
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-bmi70%40checkgym-322d2.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
 })
-
+app = Flask(__name__)
 firebase_admin.initialize_app(cred, {'storageBucket': 'checkgym-322d2.appspot.com'})
 bucket = storage.bucket()
 
@@ -31,15 +33,20 @@ while True:
     key = cv2.waitKey(1)
 
     if key == ord('c'):
-        image_path = f'C:/Users/Samsung/Desktop/CheckGym/static/imges/{capNum:}.png'
-        cv2.imwrite(image_path, frame)
         firebase_path = f'captured_images/_captured_{capNum:}.png'
         blob = bucket.blob(firebase_path)
-        blob.upload_from_filename(image_path)
-
         capNum += 1
 
     elif key == ord('q'):
         break
+    
+@app.route('/')
+def login():
+    return render_template('login.html')
 
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 capture.release()
+if __name__ == "__main__":
+    app.run(debug=True)
