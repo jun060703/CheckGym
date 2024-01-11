@@ -1,7 +1,120 @@
+/* 기본설정 */
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
+a{
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+li, ul {
+    list-style: none;
+}
+
+/* main_logout */
+
+header {
+    height: 150px;
+}
+section {
+    height: 900px;
+}
+.hDiv {
+    background: #000;
+    height: 50px;
+}
+.hMenu {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    padding: 0 100px;
+    justify-content: space-between;
+}
+.hLogo {
+    margin-left: 30px;
+}
+.menu {
+    position: relative;
+    display: flex;
+}
+.menu a{
+    width: 100px;
+    text-align: center;
+}
+.menu a:nth-child(1) {
+    width: 240px;
+}
+.notice {
+    height: 70px;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.banner {
+    height: 400px;
+    text-align: center;
+}
+.bannerImg {
+    position: relative;
+    height: 400px;
+    background: url(../imges/Banner.jpg) no-repeat center;
+    display: flex;
+    justify-content: center;
+    background-size: 2000px 350px;
+}
+.banner input {
+    position: absolute;
+    width: 120px;
+    height: 40px;
+    background: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;    
+    top: 300px;
+}
+.learnEx {
+    font-weight: bold;
+    position: relative;
+    margin-left: 130px;  
+    font-size: 25px;
+}
+.conImg {
+    display: flex;
+    justify-content: center ;
+}
+.Con1 {
+    background: url(../imges/Con1.jpg) no-repeat center;
+    width: 650px;
+    height: 300px;
+    background-size: 650px 280px;
+}
+.Con2 {
+    background: url(../imges/Con2.jpg) no-repeat center;
+    width: 650px;
+    height: 300px;
+    background-size: 650px 280px;
+    margin-left: 5px;
+}
+.Con3 {
+    background: url(../imges/Con3.jpg) no-repeat center;
+    width: 650px;
+    height: 300px;
+    background-size: 650px 280px;
+    margin-left: 5px;
+}
+.conImg p {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+
+
+
+
 .webCam{
     margin: 0 auto;
 }
