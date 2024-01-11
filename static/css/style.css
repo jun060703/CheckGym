@@ -45,6 +45,11 @@ section {
     width: 100px;
     text-align: center;
 }
+.leftmenu {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
 .authMenu {
     position: relative;
     display: flex;
@@ -53,7 +58,7 @@ section {
     width: 100px;
     text-align: center;
 }
-.authMenu a:nth-child(1) {
+.wideText {
     width: 240px;
 }
 .notice {
@@ -89,7 +94,7 @@ section {
 .learnEx {
     font-weight: bold;
     position: relative;
-    text-align: center; 
+    text-align: center;
     font-size: 25px;
 }
 .conImg {
@@ -98,20 +103,20 @@ section {
 }
 .Con1 {
     background: url(../imges/Con1.jpg) no-repeat center;
-    width: 25vw;
+    width: 26vw;
     height: 300px;
     background-size: 100% 280px;
 }
 .Con2 {
     background: url(../imges/Con2.jpg) no-repeat center;
-    width: 25vw;
+    width: 26vw;
     height: 300px;
     background-size: 100% 280px;
     margin-left: 5px;
 }
 .Con3 {
     background: url(../imges/Con3.jpg) no-repeat center;
-    width: 25vw;
+    width: 26vw;
     height: 300px;
     background-size: 100% 280px;
     margin-left: 5px;

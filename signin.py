@@ -3,6 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 import numpy as np
 import dlib
+import cv2
 app = Flask(__name__)
 
 # Firebase 관련 설정
@@ -34,13 +35,12 @@ def signin():
         user_data = {'email': email, 'pw': password}
         ref.push(user_data)
         
-        return redirect(url_for('login'))
+        return redirect('/facepost')
     return render_template('signin.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/facepost', methods=['GET', 'POST'])
 def login():
-    if request.method == "GET":
-        return render_template('login.html')
+    return render_template('facepost.html')
 
 ALL = list(range(0, 68))  # 점을 표시
 RIGHT_EYEBROW = list(range(17, 22))
@@ -53,13 +53,13 @@ MOUTH_INNER = list(range(61, 68))
 JAWLINE = list(range(0, 17))
 
 index = ALL
-predictor_file = 'C:/Users/Samsung/Desktop/CheckGym/shape_predictor_68_face_landmarks (1).dat'
+predictor_file = 'shape_predictor_68_face_landmarks (1).dat'
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_file)
 
 cap = cv2.VideoCapture(0)
 
-image_file = 'C:/Users/Samsung/Desktop/CheckGym/static/img/20240101_230333.jpg'
+image_file = './static/imges/Con1.jpg'
 compare_image = cv2.imread(image_file)
 
 def generate_frames():
@@ -106,9 +106,6 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-@app.route('/')
-def login():
-    return render_template('login.html')
 
 @app.route('/video_feed')
 def video_feed():
