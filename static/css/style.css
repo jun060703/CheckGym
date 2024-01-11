@@ -30,8 +30,9 @@ section {
     height: 100px;
     display: flex;
     align-items: center;
-    padding: 0 100px;
+    width: 90%;
     justify-content: space-between;
+    margin: 0 auto;
 }
 .hLogo {
     margin-left: 30px;
@@ -39,7 +40,6 @@ section {
 .menu {
     display: flex;
     position: relative;
-    right: 20%;
 }
 .menu a {
     width: 100px;
@@ -89,10 +89,8 @@ section {
 .learnEx {
     font-weight: bold;
     position: relative;
-    text-align: left; 
+    text-align: center; 
     font-size: 25px;
-    left: 50px;
-    width: 200px;
 }
 .conImg {
     display: flex;
