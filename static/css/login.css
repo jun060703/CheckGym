@@ -25,6 +25,13 @@ header a{
 }
 section {
     height: 1000px;
-    display: flex;
-    justify-content: center;
+    text-align: center;
+}
+section p {
+    margin-right: 600px;
+}
+.webCamDiv {
+    background: #ccc;
+    width: 500px;
+    height: 500px;
 }
