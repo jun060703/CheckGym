@@ -6,7 +6,16 @@ import dlib
 import cv2
 from flask import jsonify
 import time
+<<<<<<< HEAD
 import os
+=======
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import base64
+import os
+
+>>>>>>> 1b671cfdc9d6ab5e88802ab1df52688d9be8f439
 app = Flask(__name__)
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -46,15 +55,21 @@ bucket = storage.bucket()
 def signin():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['pw']
+        password = request.form.get('pw')
+        hashed_password = hash_password(password)
         studentId = request.form['studentId']
         name = request.form['name']
         
         # Firebase Realtime Database에 사용자 정보 추가
+<<<<<<< HEAD
         user_data = {'email': email, 'pw': password, 'studentId': studentId, 'name': name}
         # 'users' 경로에 사용자 정보 추가
         ref_users = db.reference('users')
         ref_users.push(user_data)
+=======
+        user_data = {'email': email, 'pw': hashed_password, 'studentId': studentId, 'name': name}
+        ref.push(user_data)
+>>>>>>> 1b671cfdc9d6ab5e88802ab1df52688d9be8f439
         
         if 'file' in request.files:
             file = request.files['file']
@@ -70,13 +85,33 @@ def signin():
                 
         return redirect('/facepost')
     return render_template('signin.html')
+def hash_password(password):
+    # 솔트 생성
+    salt = os.urandom(16)
 
+    # PBKDF2 알고리즘을 사용하여 비밀번호 해싱
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+
+    # 해시된 비밀번호와 솔트를 조합하여 저장
+    hashed_password = f'{base64.urlsafe_b64encode(salt).decode()}${key.decode()}'
+    return hashed_password
 
 # 사용자 정보 가져오기
 
 @app.route('/facepost', methods=['GET', 'POST'])
 def facepost():
     return render_template('facepost.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template('login.html')
 
 @app.route('/admin_log', methods=['GET', 'POST'])
 def get_user():
@@ -99,7 +134,7 @@ def get_email():
     studentId = ref.get()
     sysdate = datetime.now().strftime("%Y-%m-%d %H:%M")
     sysdate = {'sysdate': sysdate}
-    ref.push(sysdate)
+    # ref.push(sysdate)
 
     # 가져온 email을 JSON 형태로 반환
     users_data = ref.order_by_child('studentId').equal_to(student_id).get()

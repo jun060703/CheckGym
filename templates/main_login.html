@@ -7,13 +7,6 @@
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body>
-    {% if session['match_found'] %}
-
-        <p>Welcome! You have a match.</p>
-    {% else %}
-     
-        <p>No match found. Please log in.</p>
-    {% endif %}
     <header>
         <div class="hDiv"></div>
         <div class="hMenu">
@@ -22,8 +15,8 @@
                     <a href="/main_login"><img src="../static/imges/Logo.png" alt="logo"></a>
                 </div>
                 <div class="menu">
-                    <a href="#">출석하기</a>
-                    <a href="#">퇴실하기</a>
+                    <a href="/login">출석하기</a>
+                    <a href="/main_logout">퇴실하기</a>
                 </div>
             </div>
             <div class="authMenu">
@@ -38,7 +31,7 @@
             <p>헬스장 개방시간: 16:00 ~ 18:00</p>
         </div>
         <div class="banner">
-            <div class="bannerImg"><input type="button" value="출석체크" onClick="location.href='login.html'"></div>   
+            <div class="bannerImg"><input type="button" value="출석체크" onClick="location.href='/login'"></div>   
         </div>
         
         <p class="learnEx">운동 배우러 가기</p>
