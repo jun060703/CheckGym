@@ -6,9 +6,10 @@ import dlib
 import cv2
 from flask import jsonify
 import time
-
+import os
 app = Flask(__name__)
 from datetime import datetime
+from werkzeug.utils import secure_filename
 
 # Firebase 관련 설정
 cred = credentials.Certificate({
@@ -49,11 +50,24 @@ def signin():
         studentId = request.form['studentId']
         name = request.form['name']
         
-        
         # Firebase Realtime Database에 사용자 정보 추가
         user_data = {'email': email, 'pw': password, 'studentId': studentId, 'name': name}
-        ref.push(user_data)
+        # 'users' 경로에 사용자 정보 추가
+        ref_users = db.reference('users')
+        ref_users.push(user_data)
         
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename != '':
+                # 파일 이름에 studentId를 반영하여 안전하게 저장
+                filename = secure_filename(f'{studentId}_{file.filename}')
+                file_path = f'./static/images/{filename}'
+                file.save(file_path)
+                
+
+                blob = bucket.blob(f'captured_images/{filename}')
+                blob.upload_from_filename(file_path)
+                
         return redirect('/facepost')
     return render_template('signin.html')
 
@@ -170,36 +184,54 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
     
-    
-
-
+capture = cv2.VideoCapture(0)
+capNum = 0
 def generate_frames():
-    cap = cv2.VideoCapture(0)
-    capNum = 0
-
     while True:
-        ret, frame = cap.read()
-
-        key = cv2.waitKey(1)
-
-        if key == ord('c'):
-            firebase_path = f'captured_images/_captured_{capNum:}.png'
-            blob = bucket.blob(firebase_path)
-            capNum += 1
-
-        elif key == ord('q'):
+        success, frame = capture.read()
+        if not success:
             break
+
+        # Convert the frame to JPEG
         ret, buffer = cv2.imencode('.jpg', frame)
         frame_bytes = buffer.tobytes()
+
+        # Yield the frame as bytes
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-        time.sleep(0.1)
+
+# Route to display the facepost.html template
 @app.route('/facepost')
 def face():
     return render_template('facepost.html')
+
+# Route to capture a frame
+@app.route('/capture_frame', methods=['POST'])
+def capture_frame():
+    global capNum
+
+    if request.method == 'POST':
+        # Read a frame from the webcam
+        ret, frame = capture.read()
+
+        # Save the frame to a file
+        filename = f'captured_frame_{capNum}.png'
+        cv2.imwrite(filename, frame)
+
+        # Upload the frame to Firebase Storage
+        blob = bucket.blob(f'/captured_images/{filename}')
+        blob.upload_from_filename(filename)
+
+        
+        capNum += 1
+
+        return '캡쳐성공'
+
+    return '실패'
+
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(),mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(debug=True)

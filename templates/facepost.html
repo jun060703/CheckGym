@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>얼굴등록</title>
     <link rel="stylesheet" href="../static/css/login.css">
-    
 </head>
 <body>
     <header>
@@ -14,11 +13,11 @@
     <section>
         <p>짐체크 얼굴등록하기</p>
         <div class="webCamDiv">
-            <img src="{{ url_for('video_feed') }}" class="webCam">
+            <img id="video_feed" src="{{ url_for('video_feed') }}" alt="Video Feed">
+            <form action="{{ url_for('capture_frame') }}" method="post">
+                <input type="submit" value="Capture" class="captureBtn">
+            </form>
         </div>
-        <input type="button" value="캡처" class="captureBtn">
     </section>
-
-    
 </body>
 </html>
